@@ -210,7 +210,7 @@ public class MapSettingManager : MonoBehaviour
                         int blockHeight = map.MapHeight[x, z].BlockHeight;
 
                         //만약 흙블럭 위의 블럭이 비어 있지 않거나 CheckTreePlace함수의 반환값이 False라면 나무를 설치하지 않음
-                        if (map.MapBlock[x, y + 1, z].id != Air || !CheckTreePlace(new Vector3Int(x, blockHeight + 1, z)))
+                        if (map.MapBlock[x, y + 1, z].id != Air || !CheckPlaceTree(new Vector3Int(x, blockHeight + 1, z)))
                         {
                             continue;
                         }
@@ -264,7 +264,7 @@ public class MapSettingManager : MonoBehaviour
         }
     }
 
-    private bool CheckTreePlace(Vector3Int pos)
+    private bool CheckPlaceTree(Vector3Int pos)
     {
         int betweenTreesDistance = (int)GetBlockSettingData(BlockType.Trees).value[BlockSettingValue.TreeSettingValue1];
 
