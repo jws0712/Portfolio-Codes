@@ -29,8 +29,8 @@ namespace OTO.Controller
         [SerializeField] private Slider musicSlider = null;
         [SerializeField] private Slider sfxSlider = null;
 
-
-        private bool isToggleSettingPanel = default;
+        //private variable
+        private bool isTogglePanel = default;
         private bool isToggleAudioPanel = default;
 
         private void Start()
@@ -38,11 +38,11 @@ namespace OTO.Controller
             Cursor.visible = true;
 
             startButton.onClick.AddListener(StartButton);
-            settingButton.onClick.AddListener(SettingButton);
-            creditButton.onClick.AddListener(CreditButton);
-            tipButton.onClick.AddListener(TipButton);
+            settingButton.onClick.AddListener(() => { ToggleSettingPanel(true); });
+            creditButton.onClick.AddListener(() => { ToggleCreditPanel(true); });
+            tipButton.onClick.AddListener(() => { ToggleTipPanel(true); });
+            audioButton.onClick.AddListener(() => { ToggleAudioPanel(true); });
             quitButton.onClick.AddListener(QuitButton);
-            audioButton.onClick.AddListener(AudioButton);
 
             musicSlider.onValueChanged.AddListener((value) => AudioManager.Instance.SetMusicVolume(value, audioMixer));
             sfxSlider.onValueChanged.AddListener((value) => AudioManager.Instance.SetSFXVolume(value, audioMixer));
@@ -61,32 +61,34 @@ namespace OTO.Controller
                 AudioManager.Instance.SetMusicVolume(musicSlider.value, audioMixer);
                 AudioManager.Instance.SetSFXVolume(sfxSlider.value, audioMixer);
             }
+
+            GameManager.Instance.PlaySceneMusic();
         }
 
         private void Update()
         {
-            ToggleSettingPanel();
-        }
-
-        //세팅 패널을 토글하는 함수
-        private void ToggleSettingPanel()
-        {
-            if(Input.GetKeyDown(KeyCode.Escape) && isToggleSettingPanel)
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                settingBackGround.SetActive(false);
-                settingPanel.SetActive(false);
-                tipPanel.SetActive(false);
-                creditPanel.SetActive(false);
-
-                buttonGroupObject.SetActive(true);
-
                 if(isToggleAudioPanel)
                 {
-                    audioSettingPanel.SetActive(false);
-                    settingPanel.SetActive(true);
-                    isToggleAudioPanel = false;
+                    ToggleAudioPanel(false);
+                    return;
+                }
+
+                if(isTogglePanel)
+                {
+                    ToggleSettingPanel(false);
+                    ToggleAudioPanel(false);
+                    ToggleCreditPanel(false);
+                    ToggleTipPanel(false);
+                }
+                else
+                {
+                    ToggleSettingPanel(true);
                 }
             }
+
+            buttonGroupObject.SetActive(!isTogglePanel);
         }
 
         //시작버튼의 기능을 구현한 함수
@@ -97,46 +99,41 @@ namespace OTO.Controller
             LoadingScreenController.LoadScene("Stage1");
         }
 
-        //오디오 버튼의 기능을 구현한 함수
-        public void AudioButton()
-        {
-            buttonGroupObject.SetActive(false);
-            settingPanel.SetActive(false);
-            audioSettingPanel.SetActive(true);
-            buttonGroupObject.SetActive(false);
-            isToggleAudioPanel = true;
-        }
-
-        // 설정 버튼의 기능을 구현한 함수
-        public void SettingButton()
-        {
-            settingBackGround.SetActive(true);
-            settingPanel.SetActive(true);
-            buttonGroupObject.SetActive(false);
-            isToggleSettingPanel = true;
-        }
-
-        //크래딧 버튼의 기능을 구현한 함수
-        public void CreditButton()
-        {
-            creditPanel.SetActive(true);
-            buttonGroupObject.SetActive(false);
-            isToggleSettingPanel = true;
-
-        }
-
-        //도움말 기능을 구현한 함수
-        public void TipButton()
-        {
-            tipPanel.SetActive(true);
-            buttonGroupObject.SetActive(false);
-            isToggleSettingPanel = true;
-        }
-
         // 나가기 버튼의 기능을 구현한 함수
         public void QuitButton()
         {
             Application.Quit();
+        }
+
+        //세팅 패널을 토글하는 함수
+        public void ToggleSettingPanel(bool isActive)
+        {
+            settingPanel.SetActive(isActive);
+            settingBackGround.SetActive(isActive);
+            isTogglePanel = isActive;
+        }
+
+        //오디오 패널을 토글하는 함수
+        public void ToggleAudioPanel(bool isActive)
+        {
+            settingPanel.SetActive(isActive);
+            audioSettingPanel.SetActive(isActive);
+            isToggleAudioPanel = isActive;
+        }
+
+        //크래딧 패널을 토글하는 함수
+        public void ToggleCreditPanel(bool isActive)
+        {
+            creditPanel.SetActive(isActive);
+            isTogglePanel = isActive;
+
+        }
+
+        //팁 패널을 토글하는 함수
+        public void ToggleTipPanel(bool isActive)
+        {
+            tipPanel.SetActive(isActive);
+            isTogglePanel = isActive;
         }
     }
 }

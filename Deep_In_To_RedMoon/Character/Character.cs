@@ -22,6 +22,7 @@ namespace OTO.Charactor
 
         [Header("CharactorInfo")]
         [SerializeField] protected float maxHp = default;
+        [SerializeField] protected float spriteFlashDuration = 0.05f;
 
         protected float currentHp = default;
         protected new SpriteRenderer renderer = null;
@@ -29,7 +30,6 @@ namespace OTO.Charactor
 
         protected bool isDead = default;
 
-        private const float duration = 0.05f;
 
         /// <summary>
         /// 변수 초기화
@@ -82,7 +82,7 @@ namespace OTO.Charactor
         {
             renderer.material = flashMaterial;
 
-            yield return new WaitForSeconds(duration);
+            yield return new WaitForSeconds(spriteFlashDuration);
 
             renderer.material = originMaterial;
         }

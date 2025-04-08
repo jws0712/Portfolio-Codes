@@ -10,7 +10,7 @@ namespace OTO.Manager
     // 게임의 소리를 관리하는 클래스
     public class AudioManager : MonoSingleton<AudioManager>
     {
-        public Sound[] musicSounds, sfxSounds;
+        public SoundData[] musicSounds, sfxSounds;
         public AudioSource musicSource, sfxSource;
 
         public override void Awake()
@@ -21,7 +21,7 @@ namespace OTO.Manager
         // 음악을 실행시키는 함수
         public void PlayMusic(string name)
         {
-            Sound s = Array.Find(musicSounds, x => x.name == name);
+            SoundData s = Array.Find(musicSounds, x => x.name == name);
 
             if (s == null)
             {
@@ -43,7 +43,7 @@ namespace OTO.Manager
         // 효과음을 실행시키는 함수
         public void PlaySFX(string name)
         {
-            Sound s = Array.Find(sfxSounds, x => x.name == name);
+            SoundData s = Array.Find(sfxSounds, x => x.name == name);
 
             if (s == null)
             {

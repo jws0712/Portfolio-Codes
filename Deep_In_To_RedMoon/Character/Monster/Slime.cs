@@ -15,16 +15,16 @@ namespace OTO.Charactor.Monster
     {
         [Header("SlimeJump")]
         [SerializeField] private float jumpPower = default;
+        [SerializeField] private float groundCheckRange = default;
         [SerializeField] private LayerMask gorundLayer = default;
         [SerializeField] private Transform groundCheckPos = default;
 
         //private variables
-        private bool isHouseAttack = default;
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            chaseHouse = true;
+            //chaseHouse = true;
             currentCoolTime = 0f;
         }
 
@@ -36,33 +36,24 @@ namespace OTO.Charactor.Monster
         //공격 함수
         protected override void Attack()
         {
-            base.Attack();
-            if (isAttack == true)
+            if (CheckGround())
             {
-
-                if (CheckGround() == true)
-                {
-                    AudioManager.Instance.PlaySFX("MiniSlimeJump");
-                    rb.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
-                    isHouseAttack = true;
-                }
-                isAttack = false;
-                currentCoolTime = 0;
+                AudioManager.Instance.PlaySFX("MiniSlimeJump");
+                rb.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
             }
         }
 
         //땅에 닫았는지 검사하는 함수
         private bool CheckGround()
         {
-            return Physics2D.OverlapCircle(groundCheckPos.position, 0.1f, gorundLayer);
+            return Physics2D.OverlapCircle(groundCheckPos.position, groundCheckRange, gorundLayer);
         }
 
         private void OnTriggerStay2D(Collider2D collision)
         {
-            if(collision.CompareTag("House") && isHouseAttack == true)
+            if(collision.CompareTag("House") && isAttack)
             {
                 collision.gameObject.GetComponent<House>().TakeDamage(bodyAttackDamage);
-                isHouseAttack = false;
             }
         }
     }

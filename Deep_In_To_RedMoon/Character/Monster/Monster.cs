@@ -12,26 +12,33 @@ namespace OTO.Charactor.Monster
     using OTO.Manager;
     using OTO.Controller;
 
-    public class Monster : Character
+    //몬스터 행동 Enum
+    public enum MonsterState
+    {
+        ChasePlayer,
+        ChaseHouse,
+        Attack,
+    }
+
+    public abstract class Monster : Character
     {
         #region variable
         [Header("MonsterInfo")]
         [SerializeField] protected MonsterData monsterData = null;
 
         [Header("DropItem")]
-        [SerializeField] private GameObject coinObject = null;
+        [SerializeField] protected GameObject[] coinObject = null;
 
-        //Protected variables
+        //protected variables
         protected Animator anim = null;
         protected Rigidbody2D rb = null;
 
-        protected Transform playerTrasnform = null;
+        protected Transform playerTransform = null;
         protected Transform houseTransform = null;
 
         protected bool isChasePlayer = false;
         protected bool isAttack = false;
         protected bool isFlip = false;
-        protected bool chaseHouse = false;
 
         protected float currentCoolTime = default;
 
@@ -45,39 +52,15 @@ namespace OTO.Charactor.Monster
         protected float chaseRange = default;
         protected float attackRange = default;
         protected float stopDistance = default;
+
         protected LayerMask chaseTarget = default;
+
+        //private variables
+        protected MonsterState monsterState = default;
         #endregion
 
+
         protected virtual void OnEnable()
-        {
-            Init();
-
-            //이거 고쳐야함
-            if(GameObject.FindGameObjectWithTag("House") != null)
-            {
-                houseTransform = GameObject.FindGameObjectWithTag("House").transform;
-            }
-            
-            currentCoolTime = 0f;
-        }
-
-        protected virtual void Update()
-        {
-            CheckRange(chaseRange);
-            CheackAttackRange(attackRange);
-
-            if (isChasePlayer == true)
-            {
-                ChaseLogic(playerTrasnform);
-            }
-            else if(chaseHouse == true)
-            {
-                ChaseLogic(houseTransform);
-            }
-        }
-
-        //몬스터 클래스의 필드를 초기화 하는 함수
-        private void Init()
         {
             anim = GetComponent<Animator>();
             rb = GetComponent<Rigidbody2D>();
@@ -94,34 +77,64 @@ namespace OTO.Charactor.Monster
             attackRange = monsterData.AttackRange;
             stopDistance = monsterData.StopDistance;
             chaseTarget = monsterData.CaseTarget;
+
+            houseTransform = GameManager.Instance.HouseTransform;
+            
+            currentCoolTime = 0f;
         }
 
-        //공격 쿨타임이 다 돌면 공격을 실행하는 함수
-        protected virtual void Attack()
+        protected virtual void Update()
         {
-            currentCoolTime += Time.deltaTime;
+            CheckRange(chaseRange);
+            CheackAttackRange(attackRange, chaseTarget);
 
-            if (currentCoolTime >= attackCoolTime)
+            switch(monsterState)
             {
-                isAttack = true;
+                case MonsterState.ChaseHouse:
+                    {
+                        TargetChase(houseTransform);
+                        isChasePlayer = false;
+                        currentCoolTime = 0;
+                        break;
+                    }
+
+                case MonsterState.ChasePlayer:
+                    {
+                        TargetChase(playerTransform);
+                        isChasePlayer = true;
+                        currentCoolTime = 0;
+                        break;
+                    }
+
+                case MonsterState.Attack:
+                    {
+                        StopChase();
+                        isAttack = false;
+                        currentCoolTime += Time.deltaTime;
+
+                        if(currentCoolTime >= attackCoolTime)
+                        {
+                            isAttack = true;
+                            Attack();
+                            Debug.Log("공격");
+                            currentCoolTime = 0;
+                        }
+                        break;
+                    }
             }
         }
 
-        //집과 플레이어가 공격거리에 있는지 검사하는 함수
-        private void CheackAttackRange(float range)
-        {
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, range);
+        //공격 함수
+        protected abstract void Attack();
 
-            foreach (Collider2D collider in colliders)
+        //집과 플레이어가 공격거리에 있는지 검사하는 함수
+        private void CheackAttackRange(float range, LayerMask attackTarget)
+        {
+            Collider2D collider = Physics2D.OverlapCircle(transform.position, range, attackTarget);
+
+            if(collider != null)
             {
-                if (collider.CompareTag("Player") && isChasePlayer == true)
-                {
-                    Attack();
-                }
-                else if (collider.CompareTag("House") && isChasePlayer == false)
-                {
-                    Attack();
-                }
+                monsterState = MonsterState.Attack;
             }
         }
 
@@ -132,44 +145,41 @@ namespace OTO.Charactor.Monster
 
             if (collider != null)
             {
-                playerTrasnform = collider.transform;
-                isChasePlayer = true;
+                playerTransform = collider.transform;
+                monsterState = MonsterState.ChasePlayer;
             }
             else
             {
-                isChasePlayer = false;
+                if(monsterState != MonsterState.Attack)
+                {
+                    monsterState = MonsterState.ChaseHouse;
+                }
             }
         }
 
-        //타겟으로 일정거리 다가가면 멈추는 함수
-        private void ChaseLogic(Transform chaseTransform)
+        //타겟을 추적 하는 함수
+        private void TargetChase(Transform targetTransform)
         {
-            float objectDistance = Mathf.Abs(chaseTransform.position.x - transform.position.x);
+            float objectDistance = Mathf.Abs(targetTransform.position.x - transform.position.x);
 
             if (objectDistance < stopDistance)
             {
-                StopChase();
+                monsterState = MonsterState.Attack;
             }
             else
             {
-                Chase(chaseTransform);
-            }
-        }
-
-        //타겟을 추적하는 함수
-        private void Chase(Transform chaseTransform)
-        {
-            if (transform.position.x < chaseTransform.position.x)
-            {
-                rb.velocity = new Vector2(moveSpeed, rb.velocity.y);
-                transform.localScale = new Vector2(-monsterScale, monsterScale);
-                isFlip = false;
-            }
-            else
-            {
-                rb.velocity = new Vector2(-moveSpeed, rb.velocity.y);
-                transform.localScale = new Vector2(monsterScale, monsterScale);
-                isFlip = true;
+                if (transform.position.x < targetTransform.position.x)
+                {
+                    rb.velocity = new Vector2(moveSpeed, rb.velocity.y);
+                    transform.localScale = new Vector2(-monsterScale, monsterScale);
+                    isFlip = false;
+                }
+                else
+                {
+                    rb.velocity = new Vector2(-moveSpeed, rb.velocity.y);
+                    transform.localScale = new Vector2(monsterScale, monsterScale);
+                    isFlip = true;
+                }
             }
         }
         
@@ -180,14 +190,17 @@ namespace OTO.Charactor.Monster
         }
 
         //몬스터가 죽었을때 아이템을 떨어뜨리는 함수
-        private void DropItem(params GameObject[] dropItem)
+        private void DropItem(GameObject[] dropItemArray)
         {
-            for(int i = 0; i < dropItem.Length; i++)
+            if(dropItemArray == null)
             {
-                GameObject item = ObjectPoolManager.Instance.GetPoolObject(dropItem[i]);
-                item.transform.position = transform.position;
+                return;
+            }
 
-                item.GetComponent<Rigidbody2D>().AddForce(Vector2.one * -2f, ForceMode2D.Impulse);
+            foreach (GameObject dorpItem in dropItemArray)
+            {
+                GameObject item = ObjectPoolManager.Instance.GetPoolObject(dorpItem);
+                item.transform.position = transform.position;
             }
         }
 
@@ -202,12 +215,7 @@ namespace OTO.Charactor.Monster
         {
             base.Die();
 
-            GameManager.Instance.FieldMonsterCount--;
-
-            if (GameManager.Instance.FieldMonsterCount == 0)
-            {
-                StageEventBus.Publish(StageEventType.WaveClear);
-            }
+            GameManager.Instance.OnMonsterDefeated();
 
             DropItem(coinObject);
             Destroy(gameObject);
@@ -221,15 +229,6 @@ namespace OTO.Charactor.Monster
                 collision.gameObject.GetComponent<PlayerManager>().TakeDamage(bodyAttackDamage);
             }
         }
-
-        //
-        //private void OnTriggerEnter2D(Collider2D collision)
-        //{
-        //    if (collision.CompareTag("Player"))
-        //    {
-        //        collision.gameObject.GetComponent<PlayerManager>().TakeDamage(bodyAttackDamage);
-        //    }
-        //}
 
         private void OnDrawGizmos()
         {

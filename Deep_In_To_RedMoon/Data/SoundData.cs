@@ -6,7 +6,7 @@ namespace OTO.Manager
 
     // 오디오 정보 클래스
     [System.Serializable]
-    public class Sound
+    public class SoundData
     {
         public string name;
         public AudioClip clip;

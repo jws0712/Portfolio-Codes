@@ -6,7 +6,6 @@ namespace OTO.Manager
 
     //UnityEngine
     using UnityEngine;
-    using UnityEngine.UI;
     using UnityEngine.SceneManagement;
 
     //TMP
@@ -15,7 +14,6 @@ namespace OTO.Manager
     //Projects
     using OTO.Charactor.Player;
     using OTO.Controller;
-    using Unity.VisualScripting;
 
     public class GameManager : MonoSingleton<GameManager>
     {
@@ -33,11 +31,15 @@ namespace OTO.Manager
         private CameraController cameraController = null;
         private GameUIController gameUIController = null;
 
+        private Transform houseTransform = null;
+
         //property
         public float CoinCount => coinCount;
         public bool IsGameOver => isGameOver;
         public bool IsGameClear => isGameClear;
 
+
+        public Transform HouseTransform => houseTransform;
         public PlayerController PlayerController => playerController;
         public CameraController CameraController => cameraController;
         public GameUIController GameUIController => gameUIController;
@@ -76,6 +78,12 @@ namespace OTO.Manager
         }
         #endregion
 
+        //건물의 위치를 가져오는 함수
+        public void SetHouseTarget(Transform houseTransform)
+        {
+            this.houseTransform = houseTransform;
+        }
+
         //스테이지를 초기화 함수
         public void InitScene()
         {
@@ -109,8 +117,18 @@ namespace OTO.Manager
             isGameClear = true;
         }
 
+        public void OnMonsterDefeated()
+        {
+            fieldMonsterCount--;
+
+            if(fieldMonsterCount == 0)
+            {
+                StageEventBus.Publish(StageEventType.WaveClear);
+            }
+        }
+
         //현재 씬을 검사해서 음악을 실행하는 함수
-        public void CheckScene()
+        public void PlaySceneMusic()
         {
             Scene scene = SceneManager.GetActiveScene();
             switch (scene.name)

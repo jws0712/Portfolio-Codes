@@ -24,8 +24,6 @@ namespace OTO.Charactor.Monster
 
         protected override void OnEnable()
         {
-            chaseHouse = true;
-
             base.OnEnable();
         }
 
@@ -34,9 +32,9 @@ namespace OTO.Charactor.Monster
 
             base.Update();
 
-            if(isChasePlayer == true)
+            if (isChasePlayer)
             {
-                GetFireRot(playerTrasnform);
+                GetFireRot(playerTransform);
             }
             else
             {
@@ -47,31 +45,23 @@ namespace OTO.Charactor.Monster
         //공격 함수
         protected override void Attack()
         {
-            base.Attack();
-            if (isAttack == true)
+            float bulletSpread = rotZ + startBulletSpreadAngle;
+            AudioManager.Instance.PlaySFX("EarthWormAttack");
+            for (int i = 0; i < bulletNumber; i++)
             {
-                float bulletSpread = rotZ + startBulletSpreadAngle;
-                AudioManager.Instance.PlaySFX("EarthWormAttack");
-                for(int i = 0; i < bulletNumber; i++)
-                {
-                    Quaternion bulletAngle = Quaternion.Euler(0, 0, bulletSpread);
-                    GameObject _bullet = Instantiate(bulletObject, firePos.position, bulletAngle);
-                    _bullet.GetComponent<Bullet>().BulletDamage = attackDamage;
-                    bulletSpread -= bulletSpreadAngle;
+                Quaternion bulletAngle = Quaternion.Euler(0, 0, bulletSpread);
 
-                }
-                bulletSpread = rotZ + startBulletSpreadAngle * 2;
-                
+                GameObject bullet = ObjectPoolManager.Instance.GetPoolObject(bulletObject);
+                bullet.transform.position = transform.position;
+                bullet.transform.rotation = bulletAngle;
+                bullet.GetComponent<Bullet>().BulletDamage = attackDamage;
 
-                isAttack = false;
-                currentCoolTime = 0;
+                bulletSpread -= bulletSpreadAngle;
             }
+            bulletSpread = rotZ + startBulletSpreadAngle * 2;
         }
 
-        /// <summary>
-        /// 타겟의 위치를 가져와서 총알 발사 각도를 구하는 함수
-        /// </summary>
-        /// <param name="targetPos"></param>
+        //타겟의 위치를 가져와서 총알 발사 각도를 구하는 함수
         private void GetFireRot(Transform targetPos)
         {
             Vector3 rotation = targetPos.position - firePos.position;

@@ -15,6 +15,7 @@ namespace OTO.Controller
 
     public class GameUIController : MonoBehaviour, IObserver
     {
+        #region variable
         [Header("UI")]
         [SerializeField] private TextMeshProUGUI coinText = null;
         [SerializeField] private Slider hpSlider = null;
@@ -46,19 +47,23 @@ namespace OTO.Controller
         //private variable
         private PlayerController playerController = null;
 
-        private bool isToggleSettingPanel = default;
+        private bool isTogglePanel = default;
         private bool isToggleAudioPanel = default;
+        #endregion
 
         private void Start()
         {
             GameManager.Instance.SetController(this);
+
+            gameOverPanel.SetActive(false);
+            gameClearPanel.SetActive(false);
 
             gameOverPanelRePlayButton.onClick.AddListener(RePlayButton);
             gameOverPanelTitleButton.onClick.AddListener(TitleButton);
 
             gameClearPanelKeepPlayButton.onClick.AddListener(KeepPlayButton);;
             gameClearPanelTitleButton.onClick.AddListener(TitleButton);
-            audioButton.onClick.AddListener(AudioButton);
+            audioButton.onClick.AddListener(() => { ToggleAudioPanel(true); });
 
             StageEventBus.Subscribe(StageEventType.WaveStart, ToggleWaveText);
             StageEventBus.Subscribe(StageEventType.WaveClear, ToggleWaveText);
@@ -82,15 +87,33 @@ namespace OTO.Controller
                 AudioManager.Instance.SetMusicVolume(musicSlider.value, audioMixer);
                 AudioManager.Instance.SetSFXVolume(sfxSlider.value, audioMixer);
             }
+
+            GameManager.Instance.PlaySceneMusic();
         }
 
         private void Update()
         {
             if (GameManager.Instance.IsGameOver || GameManager.Instance.IsGameClear) return;
 
-            gameOverPanel.SetActive(false);
-            gameClearPanel.SetActive(false);
-            ToggleSettingPanel();
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (isToggleAudioPanel)
+                {
+                    ToggleAudioPanel(false);
+                    return;
+                }
+
+                if (isTogglePanel)
+                {
+                    ToggleSettingPanel(false);
+                    Time.timeScale = 1;
+                }
+                else
+                {
+                    ToggleSettingPanel(true);
+                    Time.timeScale = 0;
+                }
+            }
         }
 
         //웨이브 텍스트를 토글 하는 함수
@@ -100,50 +123,34 @@ namespace OTO.Controller
             waveNumber.text = (GameManager.Instance.CurrentWaveCount + 1).ToString();
         }
 
-        //열려있는 패널을 토글 하는 함수
-        private void ToggleSettingPanel()
+        //세팅 패널을 토글하는 함수
+        public void ToggleSettingPanel(bool isActive)
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                settingBackGround.SetActive(true);
-                Time.timeScale = 0;
-
-                if (isToggleAudioPanel)
-                {
-                    audioSettingPanel.SetActive(false);
-                    settingPanel.SetActive(true);
-                    isToggleAudioPanel = false;
-                }
-
-                if (isToggleSettingPanel)
-                {
-                    settingBackGround.SetActive(false);
-                    settingPanel.SetActive(false);
-                    Time.timeScale = 1;
-                }
-            }
+            settingPanel.SetActive(isActive);
+            settingBackGround.SetActive(isActive);
+            isTogglePanel = isActive;
         }
 
-        //오디오 버튼의 기능을 구현한 함수
-        public void AudioButton()
+        //오디오 패널을 토글하는 함수
+        public void ToggleAudioPanel(bool isActive)
         {
-            settingPanel.SetActive(false);
-            audioSettingPanel.SetActive(true);
-            isToggleAudioPanel = true;
+            settingPanel.SetActive(audioSettingPanel.activeSelf);
+            audioSettingPanel.SetActive(!audioSettingPanel.activeSelf);
+            isToggleAudioPanel = audioSettingPanel.activeSelf;
         }
 
         //게임 오버 패널을 토글 하는 함수
         public void ToggleGmaeOverPanel()
         {
             gameOverPanel.SetActive(true);
-            Time.timeScale = 0;
+            isTogglePanel = true;
         }
 
         //게임 클리어 패널을 토글 하는 함수
         public void ToggleGmaeClearPanel()
         {
             gameClearPanel.SetActive(true);
-            Time.timeScale = 0;
+            isTogglePanel = true;
         }
 
         //리플레이 버튼 구현한 함수
@@ -200,10 +207,10 @@ namespace OTO.Controller
         //현재 남은 탄약의 값을 업데이트하는 함수
         private void UpdateAmmoText(float currentAmmo)
         {
-            Debug.Log("탄약 업데이트");
             ammoText.text = currentAmmo.ToString() + " / ∞";
         }
 
+        //현재 가지고 있는 코인의 개수를 업데이트하는 함수
         private void UpdateCoinText(float currentCoin)
         {
             coinText.text = currentCoin.ToString();

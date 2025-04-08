@@ -10,6 +10,7 @@ namespace OTO.Charactor.Monster
 
     //Project
     using OTO.Object;
+    using OTO.Manager;
 
     public class Bat : Monster
     {
@@ -21,8 +22,6 @@ namespace OTO.Charactor.Monster
 
         protected override void OnEnable()
         {
-            chaseHouse = true;
-
             base.OnEnable();
         }
 
@@ -34,23 +33,20 @@ namespace OTO.Charactor.Monster
         //공격 함수
         protected override void Attack()
         {
-            base.Attack();
-            if (isAttack == true)
+            float bulletSpread = transform.rotation.z + startBulletSpreadAngle;
+            for (int i = 0; i < bulletNumber; i++)
             {
-                float bulletSpread = transform.rotation.z + startBulletSpreadAngle;
-                for (int i = 0; i < bulletNumber; i++)
-                {
-                    Quaternion bulletAngle = Quaternion.Euler(0, 0, bulletSpread);
-                    GameObject _bullet = Instantiate(bulletObject, transform.position, bulletAngle);
-                    _bullet.GetComponent<Bullet>().BulletDamage = attackDamage;
-                    bulletSpread -= bulletSpeadAngle;
+                Quaternion bulletAngle = Quaternion.Euler(0, 0, bulletSpread);
 
-                }
-                bulletSpread = transform.rotation.z + startBulletSpreadAngle * 2;
+                GameObject bullet = ObjectPoolManager.Instance.GetPoolObject(bulletObject);
+                bullet.transform.position = transform.position;
+                bullet.transform.rotation = bulletAngle;
+                bullet.GetComponent<Bullet>().BulletDamage = attackDamage;
 
-                isAttack = false;
-                currentCoolTime = 0;
+                bulletSpread -= bulletSpeadAngle;
+
             }
+            bulletSpread = transform.rotation.z + startBulletSpreadAngle * 2;
         }
     }
 }
