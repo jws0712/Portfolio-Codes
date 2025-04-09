@@ -30,7 +30,7 @@ public class Player2Controller : MonoBehaviourPunCallbacks
     {
         yield return new WaitUntil(() => GameManager.Instance.IsGameStart && GameManager.Instance.PlayerTransform != null);
 
-        playerOneController = FindAnyObjectByType<PlayerController>();
+        playerOneController = GameManager.Instance.PlayerTransform.GetComponent<PlayerController>();
 
         mainCamera.GetComponent<CameraController>().target = playerOneController.CameraTarget;
 
