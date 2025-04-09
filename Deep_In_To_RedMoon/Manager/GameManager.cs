@@ -52,7 +52,6 @@ namespace OTO.Manager
         {
             base.Awake();
         }
-
         private void Start()
         {
             StageEventBus.Subscribe(StageEventType.StartStage, GameStart);

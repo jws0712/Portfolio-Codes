@@ -18,7 +18,6 @@ namespace OTO.Charactor.Monster
         [SerializeField] private Transform firePos = null;
         [SerializeField] private int bulletNumber = default;
         [SerializeField] private int bulletSpreadAngle = default;
-        [SerializeField] private int startBulletSpreadAngle = default;
 
         private float rotZ = default;
 
@@ -45,20 +44,20 @@ namespace OTO.Charactor.Monster
         //공격 함수
         protected override void Attack()
         {
-            float bulletSpread = rotZ + startBulletSpreadAngle;
+            float startBbulletSpread = rotZ + (bulletSpreadAngle * (bulletNumber / 2));
             AudioManager.Instance.PlaySFX("EarthWormAttack");
-            for (int i = 0; i < bulletNumber; i++)
+
+            for (int i = 1; i <= bulletNumber; i++)
             {
-                Quaternion bulletAngle = Quaternion.Euler(0, 0, bulletSpread);
+                Quaternion bulletAngle = Quaternion.Euler(0, 0, startBbulletSpread);
 
                 GameObject bullet = ObjectPoolManager.Instance.GetPoolObject(bulletObject);
                 bullet.transform.position = transform.position;
                 bullet.transform.rotation = bulletAngle;
                 bullet.GetComponent<Bullet>().BulletDamage = attackDamage;
 
-                bulletSpread -= bulletSpreadAngle;
+                startBbulletSpread -= bulletSpreadAngle;
             }
-            bulletSpread = rotZ + startBulletSpreadAngle * 2;
         }
 
         //타겟의 위치를 가져와서 총알 발사 각도를 구하는 함수

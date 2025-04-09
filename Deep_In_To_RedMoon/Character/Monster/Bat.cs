@@ -17,8 +17,7 @@ namespace OTO.Charactor.Monster
         [Header("BatInfo")]
         [SerializeField] private GameObject bulletObject = null;
         [SerializeField] private int bulletNumber = default;
-        [SerializeField] private int bulletSpeadAngle = default;
-        [SerializeField] private int startBulletSpreadAngle = default;
+        [SerializeField] private int bulletSpreadAngle = default;
 
         protected override void OnEnable()
         {
@@ -33,20 +32,20 @@ namespace OTO.Charactor.Monster
         //공격 함수
         protected override void Attack()
         {
-            float bulletSpread = transform.rotation.z + startBulletSpreadAngle;
-            for (int i = 0; i < bulletNumber; i++)
+            float startBbulletSpread = bulletSpreadAngle * (bulletNumber / 2);
+            AudioManager.Instance.PlaySFX("EarthWormAttack");
+
+            for (int i = 1; i <= bulletNumber; i++)
             {
-                Quaternion bulletAngle = Quaternion.Euler(0, 0, bulletSpread);
+                Quaternion bulletAngle = Quaternion.Euler(0, 0, startBbulletSpread);
 
                 GameObject bullet = ObjectPoolManager.Instance.GetPoolObject(bulletObject);
                 bullet.transform.position = transform.position;
                 bullet.transform.rotation = bulletAngle;
                 bullet.GetComponent<Bullet>().BulletDamage = attackDamage;
 
-                bulletSpread -= bulletSpeadAngle;
-
+                startBbulletSpread -= bulletSpreadAngle;
             }
-            bulletSpread = transform.rotation.z + startBulletSpreadAngle * 2;
         }
     }
 }
