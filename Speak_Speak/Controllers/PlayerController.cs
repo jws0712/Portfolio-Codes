@@ -44,7 +44,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] private Transform cameraTarget = null;
     [SerializeField] private Transform orientation = null;
 
-    //private variable
+    //private 변수
     private float horisontalInput   = default;
     private float verticalInput     = default;
     private float animH             = default;
@@ -67,15 +67,17 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private Vector3 networkPos = default;
     private Quaternion networkRot = default;
 
-    //Property
+    //프로퍼티
     public Transform CameraTarget => cameraTarget;
 
+    //컴포넌트 초기화
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
     }
 
+    //초기화
     private void Start()
     {
         GameManager.Instance.SetPlayerTransform(transform);
@@ -137,6 +139,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
         CheckRespawnObject();
     }
+
     private void FixedUpdate()
     {
         if (photonView.IsMine)
@@ -157,6 +160,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+    //플레이어 입력
     private void PlayerInput()
     {
         horisontalInput = Input.GetAxisRaw("Horizontal");
@@ -165,6 +169,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         animH = Input.GetAxis("Horizontal");
         animV = Input.GetAxis("Vertical");
     }
+
+    //플레이어 애니매이션 셋팅
     private void SetAnim()
     {
         if(grounded)
@@ -181,6 +187,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         anim.SetFloat("h", animH);
         anim.SetFloat("v", animV);
     }
+
+    //플레이어 이동
     private void MovePlayer()
     {
         forward = orientation.forward;
@@ -202,6 +210,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
         rb.useGravity = !CheckSlope();
     }
+
+    //플레이어의 속도를 관리
     private void SpeedControl()
     {
         if (CheckSlope() && !exitingSlope)
@@ -222,6 +232,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             }
         }
     }
+
+    //플레이어 점프
     private void Jump()
     {
         photonView.RPC("RPC_Jump", RpcTarget.All);
@@ -230,6 +242,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
+
+    //점프 상태를 초기화
     private void ResetJump()
     {
         readyToJump = true;
@@ -242,7 +256,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         SoundManager.instance.PlaySFX("Jump");
     }
 
-    //경사면 위에 있는지 검사하는 함수
+    //경사면 위에 있는지 검사
     private bool CheckSlope()
     {
         if (Physics.Raycast(groundCheckPosition.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
@@ -254,13 +268,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         return false;
     }
 
-    //경사에서 움직일 방향을 구하는 함수
+    //경사에서 움직일 방향을 계산
     private Vector3 GetSlopeMoveDirection()
     {
         return Vector3.ProjectOnPlane(moveDir, slopeHit.normal).normalized;
     }
 
-    //리스폰 비석을 감지하는 함수
+    //체크포인트 오브젝트를 감지
     private void CheckRespawnObject()
     {
         Collider[] respawnObject;
@@ -280,7 +294,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         ResetJump();
     }
 
-    //리스폰 위치를 갱신하는 함수
+    //리스폰 위치를 갱신
     private void ChangeRespawnPosition(Transform newSpawnPosition, Collider checkPoint)
     {
         EffectManager.Instance.PlayEffect(newSpawnPosition.position, "CheckPoint");
@@ -288,7 +302,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         checkPoint.gameObject.SetActive(false);
     }
 
-    //변수를 전송하는 함수
+    //변수를 전송
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
@@ -307,17 +321,20 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (photonView.IsMine)
         {
+            //물에 닿으면 게임오버
             if (other.CompareTag("Water"))
             {
                 GameManager.Instance.GameOver();
             }
 
+            //게임 클리어 문에 닿으면 게임 클리어
             if (other.CompareTag("GameClearDoor"))
             {
                 GameManager.Instance.GameClear();
             }
         }
     }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;

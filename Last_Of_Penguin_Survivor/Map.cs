@@ -8,7 +8,7 @@ using static BlockType;
 
 public class Map
 {
-    //플레이어 주변의 청크를 검사하는 함수
+    //플레이어 주변의 청크를 검사
     public void CheckPlayerAroundChunk(Vector3 pos)
     {
         Debug.Log("업데이트");
@@ -37,7 +37,7 @@ public class Map
         }
     }
 
-    //청크 안에 특정블록을 가져오는 함수
+    //청크 안에 특정블록을 가져옴
     private void GetBlockInChunk(Vector2Int chunkPosition, string blockType, ref List<Vector3Int> blockList)
     {
         for (int voxelInChunkY = 0; voxelInChunkY < ChunkData.ChunkHeightValue; voxelInChunkY++)
@@ -57,7 +57,7 @@ public class Map
         }
     }
 
-    //블록의 상하좌우 위치에 물 블록이 있는지 검사하는 함수
+    //블록의 상하좌우 위치에 물 블록이 있는지 검사
     private bool CheckBlockNearWater(Vector3Int pos)
     {
         Vector3Int upPos = new Vector3Int(pos.x, pos.y + 1, pos.z);
@@ -76,7 +76,7 @@ public class Map
         return false;
     }
 
-    //블록의 위치가 담긴 리스트를 받아 블럭을 파괴시키는 함수
+    //블록의 위치가 담긴 리스트를 넘겨 받아 블럭을 파괴
     public void DistroyBlockGroup(ref List<Vector3Int> blockList)
     {
         int meltingCount = 0;
@@ -105,7 +105,7 @@ public class Map
         }
     }
 
-    //청크에 있는 블록을 수정하는 함수
+    //청크에 있는 블록을 수정
     public void EditBlock(Vector3 blockEditPosition, string blockEditType)
     {
         GetChunkFromPosition(blockEditPosition, ChunkType.Ground).EditVoxel(blockEditPosition, MapSettingManager.Instance.FindBlockType(blockEditType));

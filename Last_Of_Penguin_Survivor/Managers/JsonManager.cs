@@ -35,9 +35,9 @@ public class JsonManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
         #endregion
 
-        serializableChunkData = new SerializableChunkData(); //저장할 청크의 데이터(chunkData)를 저장할 직렬화 클래스를 새로 만들어 저장함
+        serializableChunkData = new SerializableChunkData(); //저장할 청크의 데이터(chunkData)를 저장할 직렬화 클래스를 새로 만들어 저장
         loadSeralizableChunkData = new SerializableChunkData(); //로드한 데이터를 담을 클래스
-        directoryPath = Path.Combine(Application.persistentDataPath, "Maps");   //"Maps" 이라는 폴더를 생성한 다음 경로를 할당함
+        directoryPath = Path.Combine(Application.persistentDataPath, "Maps");   //"Maps" 이라는 폴더를 생성한 다음 경로를 할당
     }
 
     public void Save(Chunk chunkData)
@@ -46,14 +46,14 @@ public class JsonManager : MonoBehaviour
         string saveFileName = $"{chunkData.Coord.x}-{chunkData.Coord.y}.chunk";         
         string savePath = Path.Combine(directoryPath, saveFileName);
 
-        //경로가 없다면 경로를 생성함
+        //경로가 없다면 경로를 생성
         if (!Directory.Exists(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
         }
 
         //경로에 똑같은 파일이 있는지 검사
-        //경로에 데이터가 저장이 되어 있지 않다면 저장함
+        //경로에 데이터가 저장이 되어 있지 않다면 저장
         //경로에 이미 데이터가 저장이 되어 있다면 저장하지 않음
         if (!File.Exists(savePath))
         {
@@ -84,13 +84,13 @@ public class JsonManager : MonoBehaviour
         }
     }
 
-    //저장 데이터를 새로운 데이터로 갱신 시킴
+    //저장 데이터를 새로운 데이터로 갱신
     public void UpdateSave(Chunk chunkData)
     {
         string saveFileName = $"{chunkData.Coord.x}-{chunkData.Coord.y}.chunk";
         string savePath = Path.Combine(directoryPath, saveFileName);
 
-        //경로에 이미 데이터를 갱신함
+        //경로에 이미 데이터를 갱신
         if (File.Exists(savePath))
         {
             serializableChunkData.blockInChunk = chunkData.BlockInChunk;
@@ -143,7 +143,7 @@ public class JsonManager : MonoBehaviour
             }
             catch (Exception e)
             {
-                Debug.Log($"Message: {e.Message}\nStackTrace: {e.StackTrace}");
+                Debug.LogError($"Message: {e.Message}\nStackTrace: {e.StackTrace}");
             }
         }
 

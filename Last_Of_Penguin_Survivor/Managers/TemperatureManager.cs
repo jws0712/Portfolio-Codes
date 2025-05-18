@@ -22,21 +22,20 @@ public class TemperatureManager : MonoBehaviour
     
     private void Awake()
     {
-        //싱글톤
         Instance = this;
 
         mapSettingManager = FindObjectOfType<MapSettingManager>();
         map = mapSettingManager.Map;
     }
 
-    //pos 위치의 온도를 반환시킴
+    //pos 위치의 온도를 반환
     public int GetTemperature(Vector3 pos)
     {
         int x = Mathf.FloorToInt(pos.x);
         int y = Mathf.FloorToInt(pos.y);
         int z = Mathf.FloorToInt(pos.z);
 
-        //맵의 범위를 벗어나면 Nomal온도를 반환시킴
+        //맵의 범위를 벗어나면 Nomal온도를 반환
         if (x < 0 || x > (mapSettingManager.MapWidthChunkValue * ChunkData.ChunkWidthValue) ||
             z < 0 || z > (mapSettingManager.MapLengthChunkValue * ChunkData.ChunkLengthValue) ||
             y <= mapSettingManager.ParentChunkYPos || y > ChunkData.ChunkHeightValue)
@@ -47,10 +46,10 @@ public class TemperatureManager : MonoBehaviour
         return (int)map.MapBlock[x, y, z].blockTemperatureType;
     }
 
-    //블럭의 온도를 반환 시키는 함수
+    //블럭의 온도를 반환
     public void UpdateTemperature()
     {
-        //모닥불 오브젝를 찾아 보닥불 근처 블럭의 온도를 설정함
+        //모닥불 오브젝를 찾아 보닥불 근처 블럭의 온도를 설정
         GameObject[] lightBuildings = GameObject.FindGameObjectsWithTag("Bonfire");
 
         foreach(var lightBuilding in lightBuildings)
@@ -58,7 +57,7 @@ public class TemperatureManager : MonoBehaviour
             lightBuilding.GetComponent<AreaEffectManager>().TemperatrueUp();
         }
 
-        //맵의 모든 블럭을 검사함
+        //맵의 모든 블럭을 검사
         for (int y = 0; y < ChunkData.ChunkHeightValue; y++)
         {
             for (int x = 0; x < mapSettingManager.MapWidthChunkValue * ChunkData.ChunkWidthValue; x++)
@@ -71,14 +70,14 @@ public class TemperatureManager : MonoBehaviour
                         continue;
                     }
 
-                    //검사한 블럭이 물이라면 물블럭의 온도를 VeryCold로 설정함
+                    //검사한 블럭이 물이라면 물블럭의 온도를 VeryCold로 설정
                     if (map.MapBlock[x, y, z].id == BlockType.Water)
                     {
                         map.MapBlock[x, y, z].blockTemperatureType = BlockTemperatureType.VeryCold;
                     }
                     else
                     {
-                        //검사한 블럭이 물블럭이 아니라면 온도를 전체온도에 따라서 온도를 설정함
+                        //검사한 블럭이 물블럭이 아니라면 온도를 전체온도에 따라서 온도를 설정
                         switch (mapSettingManager.globalTemperature)
                         {
                             case TemperatureType.VeryCold:

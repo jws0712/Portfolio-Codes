@@ -12,10 +12,11 @@ using Photon.Pun;
 
 public class Player2Controller : MonoBehaviourPunCallbacks
 {
-    //private variable
+    //private 변수
     private Camera mainCamera = null;
     private PlayerController playerOneController = null;
 
+    //초기화
     private void Start()
     {
         mainCamera = Camera.main;
@@ -26,6 +27,7 @@ public class Player2Controller : MonoBehaviourPunCallbacks
         StartCoroutine(Co_WaitSetCamera());
     }
 
+    //카메라 셋팅
     private IEnumerator Co_WaitSetCamera()
     {
         yield return new WaitUntil(() => GameManager.Instance.IsGameStart && GameManager.Instance.PlayerTransform != null);

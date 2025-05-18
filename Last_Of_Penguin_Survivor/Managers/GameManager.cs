@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
     {
         if (Input.anyKey && isGameOver)
         {
-            //게임오버시 페이드인이 되면서 작동하는 코드
+            //게임오버시 페이드인이 되면서 작동
             FadeManager.Instance.FadeIn(() => 
             {
                 if (LopNetworkManager.singleton.isNetworkActive)
@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    //결과화면을 보여주는 함수
+    //결과화면을 보여줌
     public void OnResultPenel()
     {
         FadeManager.Instance.FadeOut(() => { isGameOver = true; });

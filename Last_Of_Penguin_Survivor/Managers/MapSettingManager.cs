@@ -131,9 +131,9 @@ public class MapSettingManager : MonoBehaviour
 	private TemperatureType             lastTemperature = default;
 	private TimeType                    timeType;
 
+    //초기화
     private void Start()
     {
-        // 글로벌 온도 설정
         TemperatureManager.Instance.UpdateTemperature();
     }
 
@@ -155,7 +155,7 @@ public class MapSettingManager : MonoBehaviour
 
         if (TimeManager.Instance.CurrentTimeData != null)
         {
-            //시간이 바뀔때마다 특정 온도로 업데이트 해줌
+            //시간이 바뀔때마다 특정 온도로 업데이트
             switch (TimeManager.Instance.CurrentTimeType)
             {
                 case TimeType.Day:
@@ -181,19 +181,18 @@ public class MapSettingManager : MonoBehaviour
 
     }
 
-    //온도를 업데이트해줌
+    //온도 업데이트
     private void UpdateTemperature()
     {
-        //마지막으로 변경된 온도와 바뀌려는 온도가 다를때 실행
         if (globalTemperature != lastTemperature)
         {
             lastTemperature = globalTemperature;
-            //온도 업데이트 함수
             TemperatureManager.Instance.UpdateTemperature();
 
         }
     }
 
+    //게임 월드에 나무 설치
     public void PlaceTree()
     {
 	    List<GameObject> trees = new List<GameObject>();
@@ -204,18 +203,15 @@ public class MapSettingManager : MonoBehaviour
             {
                 for (int z = 0; z < MapLengthChunkValue * ChunkData.ChunkLengthValue; z++)
                 {
-                    //검사한 블럭이 흙이면 실행
                     if (map.MapBlock[x,y,z].id == Ground)
                     {
                         int blockHeight = map.MapHeight[x, z].BlockHeight;
 
-                        //만약 흙블럭 위의 블럭이 비어 있지 않거나 CheckTreePlace함수의 반환값이 False라면 나무를 설치하지 않음
                         if (map.MapBlock[x, y + 1, z].id != Air || !CheckPlaceTree(new Vector3Int(x, blockHeight + 1, z)))
                         {
                             continue;
                         }
 
-                        //나무를 설치함
                         if (Random.Range(0, 100) <= treePlacePersent)
                         {
                             float randomNumber = 0;
@@ -264,6 +260,7 @@ public class MapSettingManager : MonoBehaviour
         }
     }
 
+    //나무가 설치 가능한지 검사
     private bool CheckPlaceTree(Vector3Int pos)
     {
         int betweenTreesDistance = (int)GetBlockSettingData(BlockType.Trees).value[BlockSettingValue.TreeSettingValue1];

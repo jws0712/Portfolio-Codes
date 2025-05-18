@@ -31,7 +31,7 @@ public class FadeManager : MonoBehaviour
         fadeCanvas.gameObject.SetActive(false);
     }
 
-    //페이드 인
+    //페이드 인 실행
     public void FadeIn(Action function = null)
     {
         fadeCanvas.gameObject.SetActive(true);
@@ -48,7 +48,7 @@ public class FadeManager : MonoBehaviour
         }
     }
 
-    //페이드 아웃
+    //페이드 아웃 실행
     public void FadeOut(Action function = null)
     {
         fadeCanvas.gameObject.SetActive(true);
@@ -68,7 +68,7 @@ public class FadeManager : MonoBehaviour
     }
 
 
-    //애니매이션 클립의 시간가져오는 함수
+    //애니매이션 클립의 시간을 가져옴
     private float GetClipTime(string clipName)
     {
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;

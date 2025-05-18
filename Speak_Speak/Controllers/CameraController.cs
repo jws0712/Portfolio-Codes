@@ -21,6 +21,7 @@ public class CameraController : MonoBehaviour
     private float Xaxis = default;
     private Vector3 targetRotation = default;
 
+    //초기화
     private void Start()
     {
         mainCamera = Camera.main;
@@ -33,9 +34,7 @@ public class CameraController : MonoBehaviour
         CameraMovement();
     }
 
-    /// <summary>
-    /// 마우스에 따라 카메라를 움직이는 함수
-    /// </summary>
+    //마우스에 따라 카메라를 이동
     private void CameraMovement()
     {
         Yaxis += Input.GetAxis("Mouse X") * rotSensitive;

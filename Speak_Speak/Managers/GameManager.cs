@@ -24,10 +24,10 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject testPanel                = null;
     [SerializeField] private float gameOverDurationTime          = default;
 
-    //static variable
+    //static 변수
     public static GameManager Instance;
 
-    //private variable
+    //private 변수
     private float deathCount         = default;
 
     private bool isGameOver          = default;
@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private MyRole myRole = null;
 
-    //Property
+    //프로퍼티
     public bool IsGameOver  => isGameOver;
     public bool IsGameStart => isGameStart;
     public bool IsGameClear => isGameClear;
@@ -48,12 +48,14 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public Transform RespawnPostiton { get{ return respawnPostiton; } set { respawnPostiton = value; } }
 
+    //싱글톤
     private void Awake()
     {
         Instance = this;
 
     }
 
+    //초기화
     private void Start()
     {
         PhotonNetwork.SendRate = 60;
@@ -91,7 +93,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
-    //플레이어 위치를 받아오는 함수
+    //플레이어 위치를 넘겨받음
     public void SetPlayerTransform(Transform playerTransform)
     {
         this.playerTransform = playerTransform;
@@ -106,13 +108,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         TransitionManager.Instance().onTransitionCutPointReached -= OnLoadScene;
     }
 
-    //게임오버 함수
+    //게임 오버
     public void GameOver()
     {
         photonView.RPC("RPC_GameOver", RpcTarget.All);
     }
 
-    //게임클리어 함수
+    //게임 클리어
     public void GameClear()
     {
         photonView.RPC("RPC_GameClear", RpcTarget.All);
@@ -153,7 +155,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         Respawn();
     }
 
-    //플레이어 리스폰 함수
+    //플레이어 리스폰
     private void Respawn()
     {
         playerTransform.position = respawnPostiton.position;
